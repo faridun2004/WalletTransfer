@@ -31,7 +31,7 @@ namespace NotificationService.Infrastructure.Consumers
                 context.Message.CurrencyTo, context.Message.WalletId, 
                 context.Message.WalletSentId);
 
-            Console.WriteLine($"\nПеревод: {e.Amount} {e.CurrencyFrom} → {e.CurrencyTo} от {e.WalletId} к {e.WalletSentId}\n");
+            string mesage=($"Перевод: {e.Amount} {e.CurrencyFrom} → {e.CurrencyTo} от {e.WalletId} к {e.WalletSentId}");
             
             var transferNotification = new Notification
             {
@@ -40,7 +40,9 @@ namespace NotificationService.Infrastructure.Consumers
                 Amount = e.Amount,
                 CurrencyFrom = e.CurrencyFrom,
                 CurrencyTo = e.CurrencyTo,
-                TransferDate = DateTime.UtcNow 
+                TransferDate = DateTime.UtcNow,
+                Message=mesage
+                
             };
 
             _context.Notifications.Add(transferNotification);

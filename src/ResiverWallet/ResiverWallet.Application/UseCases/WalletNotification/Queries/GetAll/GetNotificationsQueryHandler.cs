@@ -31,7 +31,9 @@ namespace NotificationService.Application.UseCases.WalletNotification.Queries.Ge
                 CurrencyTo = wallet.CurrencyTo,
                 TransferDate = wallet.TransferDate,
                 WalletId = wallet.WalletId, 
-                WalletSentId = wallet.WalletSentId 
+                WalletSentId = wallet.WalletSentId,
+                Message = wallet.Message,
+
             }).ToList();
         }
     }

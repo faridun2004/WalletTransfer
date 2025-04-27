@@ -16,5 +16,6 @@ namespace NotificationService.Application.Common.DTOs
         public WalletStatus CurrencyFrom { get; set; }
         public WalletStatus CurrencyTo { get; set; }
         public DateTime TransferDate { get; set; }
+        public string? Message {  get; set; }
     }
 }
