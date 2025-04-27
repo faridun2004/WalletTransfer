@@ -22,8 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SenderWaller.Domain\SenderWaller.Domain.csproj" />
-    <ProjectReference Include="..\SenderWallet.Application\SenderWallet.Application.csproj" />
+    <ProjectReference Include="..\..\Contracts\Contracts.csproj" />
+    <ProjectReference Include="..\ResiverWallet.Application\NotificationService.Application.csproj" />
+    <ProjectReference Include="..\ResiverWallet.Domain\NotificationService.Domain.csproj" />
   </ItemGroup>
 
 </Project>

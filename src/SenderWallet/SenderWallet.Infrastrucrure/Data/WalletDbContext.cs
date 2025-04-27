@@ -1,21 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SenderWaller.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
+using SenderWallet.Application.Common.Data;
 
 namespace SenderWallet.Infrastrucrure.Data
 {
-    public class WalletDbContext : DbContext
+    public class WalletDbContext : DbContext, IWalletDbContext
     {
+        public WalletDbContext(DbContextOptions options): base(options) { }
         public DbSet<Wallet> Wallets => Set<Wallet>();
-        public DbSet<WalletTransaction> WalletTransactions => Set<WalletTransaction>();
-
-        public WalletDbContext(DbContextOptions<WalletDbContext> options)
-            : base(options) { }
+           
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        }
     }
-
 }

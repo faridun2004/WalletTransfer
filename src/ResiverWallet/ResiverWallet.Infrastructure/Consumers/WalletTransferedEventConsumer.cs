@@ -1,0 +1,52 @@
+﻿using Contracts.Events;
+using MassTransit;
+using Microsoft.Extensions.Logging;
+using NotificationService.Application.Common.Data;
+using NotificationService.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NotificationService.Infrastructure.Consumers
+{
+    public class WalletTransferedEventConsumer : IConsumer<WalletTransferedEvent>
+    {
+        private readonly ILogger<WalletTransferedEventConsumer> _logger;
+        private readonly INotificationDbContext _context;
+
+        public WalletTransferedEventConsumer(INotificationDbContext context, 
+               ILogger<WalletTransferedEventConsumer> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task Consume(ConsumeContext<WalletTransferedEvent> context)
+        {
+            var e = context.Message;
+                _logger.LogInformation("Wallet Transfered: {Amount}, {CurrencyFrom}, {CurrencyTo}, {WalletId}, {WalletSentId}",
+                context.Message.Amount, context.Message.CurrencyFrom, 
+                context.Message.CurrencyTo, context.Message.WalletId, 
+                context.Message.WalletSentId);
+
+            Console.WriteLine($"\nПеревод: {e.Amount} {e.CurrencyFrom} → {e.CurrencyTo} от {e.WalletId} к {e.WalletSentId}\n");
+            
+            var transferNotification = new Notification
+            {
+                WalletId = e.WalletId,
+                WalletSentId = e.WalletSentId,
+                Amount = e.Amount,
+                CurrencyFrom = e.CurrencyFrom,
+                CurrencyTo = e.CurrencyTo,
+                TransferDate = DateTime.UtcNow 
+            };
+
+            _context.Notifications.Add(transferNotification);
+
+            await _context.SaveChangesAsync();
+        }
+    }
+
+}

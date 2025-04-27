@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using SenderWaller.Domain.Entities;
-using SenderWallet.Application.Data;
+using SenderWallet.Application.Common.Data;
 
-namespace SenderWallet.Application.UseCases.Wallets.CreateWallet
+namespace SenderWallet.Application.UseCases.Wallets.Commands.CreateWallet
 {
     public class CreateWalletCommandHandler : IRequestHandler<CreateWalletCommand, Wallet>
     {
@@ -17,9 +17,11 @@ namespace SenderWallet.Application.UseCases.Wallets.CreateWallet
             var wallet = new Wallet
             {
                 Id = Guid.NewGuid(),
-                Owner = request.Owner,
-                Balance = 1000
+                UserName=request.UserName,
+                TjsBalance=request.TJSBalance,
+                UsdBalance=request.USDBalance
             };
+
             _dbContext.Wallets.Add(wallet);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return wallet;
