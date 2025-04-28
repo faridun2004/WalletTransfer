@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SenderWallet.Application.Common.Data;
 using SenderWallet.Application.Common.Interfaces;
+using SenderWallet.Application.Common.Mappers.Wallets;
 using SenderWallet.Application.UseCases.Wallets.Commands.CreateWallet;
 using SenderWallet.Application.UseCases.Wallets.Commands.ExchangeCurrencyWallet;
 using SenderWallet.Infrastrucrure.Data;
@@ -18,8 +19,9 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(CreateWalletCommand).Assembly));
 
 builder.Services.AddScoped<IWalletDbContext, WalletDbContext>();
+builder.Services.AddAutoMapper(typeof(WalletMappingProfile));
 
-
+    
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IEventBusPublisher, EventBusPublisher>();
 builder.Services.AddSwaggerGen();

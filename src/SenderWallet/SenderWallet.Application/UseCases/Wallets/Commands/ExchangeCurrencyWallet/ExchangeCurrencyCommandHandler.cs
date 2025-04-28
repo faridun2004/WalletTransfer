@@ -1,6 +1,9 @@
 ﻿using Contracts.Events;
 using MediatR;
+using SenderWaller.Domain.Entities;
 using SenderWallet.Application.Common.Data;
+using SenderWallet.Application.Common.Exceptions.WalletException;
+using SenderWallet.Application.Common.Extensions;
 using SenderWallet.Application.Common.Interfaces;
 
 namespace SenderWallet.Application.UseCases.Wallets.Commands.ExchangeCurrencyWallet
@@ -20,28 +23,11 @@ namespace SenderWallet.Application.UseCases.Wallets.Commands.ExchangeCurrencyWal
         {
             var sender = await _context.Wallets.FindAsync(request.WalletId);
             var receiver = await _context.Wallets.FindAsync(request.WalletSentId);
-
             if (sender == null || receiver == null)
-                throw new Exception("Wallet not found");
-
-            if (request.CurrencyFrom == WalletStatus.USD && sender.UsdBalance < request.Amount)
-                throw new Exception("Insufficient USD");
-
-            if (request.CurrencyFrom == WalletStatus.TJS && sender.TjsBalance < request.Amount)
-                throw new Exception("Insufficient TJS");
-
-            if (request.CurrencyFrom == WalletStatus.USD)
-                sender.UsdBalance -= request.Amount;
-            else
-                sender.TjsBalance -= request.Amount;
-
-            if (request.CurrencyTo == WalletStatus.USD)
-                receiver.UsdBalance += request.Amount;
-            else
-                receiver.TjsBalance += request.Amount;
-
+                throw new WalletNotFoundException("Wallet not found.");
+            sender.ValidateSufficientBalance(request.CurrencyFrom, request.Amount);
+            sender.PerformCurrencyExchange(receiver, request);
             await _context.SaveChangesAsync();
-
             await _eventBus.PublishAsync(new WalletTransferedEvent(
                 request.WalletId,
                 request.Amount,
@@ -52,5 +38,6 @@ namespace SenderWallet.Application.UseCases.Wallets.Commands.ExchangeCurrencyWal
 
             return Guid.NewGuid();
         }
+       
     }
 }
