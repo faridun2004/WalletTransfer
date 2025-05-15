@@ -30,6 +30,7 @@ namespace NotificationService.Infrastructure.Consumers
             
             var transferNotification = new Notification
             {
+                Id=Guid.NewGuid(),
                 WalletId = e.WalletId,
                 WalletSentId = e.WalletSentId,
                 Amount = e.Amount,

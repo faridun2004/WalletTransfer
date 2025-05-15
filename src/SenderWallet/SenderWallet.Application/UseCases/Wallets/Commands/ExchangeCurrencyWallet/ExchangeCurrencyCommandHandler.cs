@@ -12,13 +12,11 @@ namespace SenderWallet.Application.UseCases.Wallets.Commands.ExchangeCurrencyWal
     {
         private readonly IWalletDbContext _context;
         private readonly IEventBusPublisher _eventBus;
-
         public ExchangeCurrencyCommandHandler(IWalletDbContext context, IEventBusPublisher eventBus)
         {
             _context = context;
             _eventBus = eventBus;
         }
-
         public async Task<Guid> Handle(ExchangeCurrencyCommand request, CancellationToken cancellationToken)
         {
             var sender = await _context.Wallets.FindAsync(request.WalletId);
@@ -28,16 +26,14 @@ namespace SenderWallet.Application.UseCases.Wallets.Commands.ExchangeCurrencyWal
             sender.ValidateSufficientBalance(request.CurrencyFrom, request.Amount);
             sender.PerformCurrencyExchange(receiver, request);
             await _context.SaveChangesAsync();
-            await _eventBus.PublishAsync(new WalletTransferedEvent(
+            await _eventBus.PublishAsync(new WalletTransferedEvent(           
                 request.WalletId,
                 request.Amount,
                 request.CurrencyFrom,
                 request.CurrencyTo,
                 request.WalletSentId
             ));
-
-            return Guid.NewGuid();
-        }
-       
+            return sender.Id;
+        } 
     }
 }

@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SenderWallet.Application.Common.Data;
 using SenderWallet.Application.Common.Interfaces;
 using SenderWallet.Application.Common.Mappers.Wallets;
-using SenderWallet.Application.UseCases.Wallets.Commands.CreateWallet;
-using SenderWallet.Application.UseCases.Wallets.Commands.ExchangeCurrencyWallet;
+using SenderWallet.Application.SenderWallet.Application;
 using SenderWallet.Infrastrucrure.Data;
 using SenderWallet.Infrastrucrure.Messaging;
 
@@ -13,10 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<WalletDbContext>(con => con.UseSqlServer(builder.Configuration["ConnectionString"])
                       .LogTo(Console.Write, LogLevel.Information));
 
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(ExchangeCurrencyCommand).Assembly));
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(CreateWalletCommand).Assembly));
+builder.Services.AddApplication();
 
 builder.Services.AddScoped<IWalletDbContext, WalletDbContext>();
 builder.Services.AddAutoMapper(typeof(WalletMappingProfile));
@@ -25,24 +21,32 @@ builder.Services.AddAutoMapper(typeof(WalletMappingProfile));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IEventBusPublisher, EventBusPublisher>();
 builder.Services.AddSwaggerGen();
+
+
 builder.Services.AddMassTransit(x =>
 {
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter(prefix: "wallet", includeNamespace: false));
+
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(new Uri(builder.Configuration["RabbitMq:Host"]), h =>
-        {
-            h.Username(builder.Configuration["RabbitMq:Username"]);
-            h.Password(builder.Configuration["RabbitMq:Password"]);
-        });
+        RabbitMqConfigurator.Configure(cfg, builder.Configuration);
         cfg.ConfigureEndpoints(context);
     });
 });
+
+
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetService<WalletDbContext>();
-    context.Database.Migrate();
+    if (context != null) 
+    {
+        context.Database.Migrate();
+    }
+    else
+    {
+        throw new InvalidOperationException("WalletDbContext could not be resolved from the service provider.");
+    }
 }
 if (app.Environment.IsDevelopment())
 {

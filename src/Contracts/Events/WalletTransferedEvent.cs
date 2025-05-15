@@ -13,4 +13,4 @@ namespace Contracts.Events
         WalletStatus CurrencyTo,
         Guid WalletSentId
     );
-}
+}   

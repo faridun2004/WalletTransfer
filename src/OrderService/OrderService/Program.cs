@@ -1,24 +1,22 @@
-
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using NotificationService.Application.Common.Data;
-using NotificationService.Application.UseCases.WalletNotification.Queries.GetAll;
-using NotificationService.Infrastructure.Consumers;
-using NotificationService.Infrastructure.Data;
+using OrderService.Application.Common.Data;
+using OrderService.Infrastructure.Cosumers;
+using OrderService.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddDbContext<NotificationDbContext>(con => con.UseSqlServer(builder.Configuration["ConnectionString"])
+builder.Services.AddDbContext<OrderDbContext>(con => con.UseSqlServer(builder.Configuration["ConnectionString"])
                       .LogTo(Console.Write, LogLevel.Information));
-builder.Services.AddScoped<INotificationDbContext, NotificationDbContext>();
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(GetNotificationsQuery).Assembly));
+builder.Services.AddScoped<IOrderDbContext , OrderDbContext>();
 builder.Services.AddMassTransit(x =>
 {
-    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter(prefix: "notification", includeNamespace: false));
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter(prefix: "order", includeNamespace: false));
 
     x.AddConsumer<WalletTransferedEventConsumer>();
 
@@ -33,13 +31,13 @@ builder.Services.AddMassTransit(x =>
     });
 });
 builder.Services.AddSwaggerGen();
-
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetService<NotificationDbContext>();
+    var context = scope.ServiceProvider.GetService<OrderDbContext>();
     context.Database.Migrate();
 }
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

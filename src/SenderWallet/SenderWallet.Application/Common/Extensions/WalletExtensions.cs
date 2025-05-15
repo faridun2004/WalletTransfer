@@ -34,5 +34,4 @@ namespace SenderWallet.Application.Common.Extensions
                 receiver.TjsBalance += request.Amount;
         }
     }
-
 }
